@@ -3,21 +3,21 @@ package lpoo.geom;
 import java.util.*;
 
 /**
- *
+ * @author João Pedro Huppes Arenales
  * @author Paulo Pagliosa
  */
-public class Quadtree
-  implements Iterable<Quadtree.NodeData>
+public class Quadtree<P extends Point2> 
+  implements Iterable<Quadtree.NodeData<P>>
 {
-  public static class NodeData
-    implements Iterable<Point2>
+  public static class NodeData<P extends Point2> 
+    implements Iterable<P>
   {
     public final Bounds2 bounds()
     {
       return new Bounds2(bounds);
     }
   
-    public final boolean contains(Point2 p)
+    public final boolean contains(P p)
     {
       return bounds.contains(p);
     }
@@ -28,7 +28,7 @@ public class Quadtree
     }
 
     @Override
-    public final Iterator<Point2> iterator()
+    public final Iterator<P> iterator()
     {
       return points.iterator();
     }
@@ -44,7 +44,7 @@ public class Quadtree
     }
   
     protected final Bounds2 bounds;
-    protected final LinkedList<Point2> points = new LinkedList<>();
+    protected final LinkedList<P> points = new LinkedList<>();
     protected final int depth;
   
     protected NodeData(final Bounds2 bounds)
@@ -63,10 +63,10 @@ public class Quadtree
   
   public final int pointsPerNode;
 
-  public Quadtree(final Point2[] points, int pointsPerNode)
+  public Quadtree(final P[] points, int pointsPerNode)
   {
     this(bounds(points), pointsPerNode);
-    for (Point2 p : points)
+    for (P p : points)
       root.add(p);
     split(root);
   }
@@ -92,16 +92,16 @@ public class Quadtree
   }
 
   @Override
-  public Iterator<NodeData> iterator()
+  public Iterator<NodeData<P>> iterator()
   {
-    return new QuadtreeLeafIterator(root);
+    return new QuadtreeLeafIterator<P>(root);
   }
 
   public static final float fatFactor = 1.01f;
   public static final int minPointsPerNode = 5;
   public static final int maxDepth = 8;
 
-  static class Node extends NodeData
+  static class Node <P extends Point2> extends NodeData<P>
   {
     Node(final Bounds2 bounds)
     {
@@ -123,27 +123,28 @@ public class Quadtree
       points.clear();
     }
 
-    final void add(Point2 p)
+    final void add(P p)
     {
       points.add(p);
     }
 
-    Node[] children;
+    Node<P>[] children;
 
   } // Node
 
-  private Node root;
+  private Node<P> root;
   private int nodeCount;
   private int leafCount;
 
   private Quadtree(final Bounds2 bounds, int pointsPerNode)
   {
     this.pointsPerNode = Math.max(minPointsPerNode, pointsPerNode);
-    root = new Node(new Bounds2(bounds).inflate(fatFactor));
+    root = new Node<P>(new Bounds2(bounds).inflate(fatFactor));
     nodeCount = 1;
   }
 
-  private void split(Node node)
+  @SuppressWarnings("unchecked")
+  private void split(Node<P> node)
   {
     if (node.pointCount() <= pointsPerNode || node.depth == maxDepth)
       return;
@@ -152,15 +153,16 @@ public class Quadtree
       Point2 s = node.bounds.size().mul(0.5f);
       int d = node.depth + 1;
 
-      node.children = new Node[4];
-      node.children[0] = new Node(p, s, d);
-      node.children[1] = new Node(new Point2(p.x + s.x, p.y), s, d);
-      node.children[2] = new Node(new Point2(p.x + s.x, p.y + s.y), s, d);
-      node.children[3] = new Node(new Point2(p.x, p.y + s.y), s, d);
+      node.children = (Node<P>[]) new Node[4];
+      node.children[0] = new Node<P>(p, s, d);
+      node.children[1] = new Node<P>(new Point2(p.x + s.x, p.y), s, d);
+      node.children[2] = new Node<P>(new Point2(p.x + s.x, p.y + s.y), s, d);
+      node.children[3] = new Node<P>(new Point2(p.x, p.y + s.y), s, d);
       leafCount += 3;
       nodeCount += 4;
     }
-    for (Point2 p : node)
+
+    for (P p : node)
       for (int i = 0; i < 4; i++)
         if (node.children[i].contains(p))
         {
@@ -172,16 +174,16 @@ public class Quadtree
       split(node.children[i]);
   }
 
-  private static Bounds2 bounds(final Point2[] points)
+  private static <T extends Point2> Bounds2 bounds(final T[] points)
   {
     Bounds2 bounds = new Bounds2();
 
-    for (Point2 p : points)
+    for (T p : points)
       bounds.inflate(p);
     return bounds;
   }
 
-  private static int pointCount(Node node)
+  private static <T extends Point2> int pointCount(Node<T> node)
   {
     if (node.isLeaf())
       return node.pointCount();
@@ -195,8 +197,8 @@ public class Quadtree
 
 } // Quadtree
 
-final class QuadtreeLeafIterator
-  implements Iterator<Quadtree.NodeData>
+final class QuadtreeLeafIterator <P extends Point2>
+  implements Iterator<Quadtree.NodeData<P>>
 {
   @Override
   public boolean hasNext()
@@ -205,22 +207,24 @@ final class QuadtreeLeafIterator
   }
 
   @Override
-  public Quadtree.NodeData next()
+  public Quadtree.NodeData<P> next()
   {
-    Quadtree.Node node = stack.pop();
+    Quadtree.Node<P> node = stack.pop();
 
     if (!node.isLeaf())
       for (int i = 4; i > 0;)
-        stack.push(node.children[--i]);
+        if (node.children[--i] != null)
+          stack.push(node.children[--i]);
     return node;
   }
 
-  QuadtreeLeafIterator(Quadtree.Node root)
+  QuadtreeLeafIterator(Quadtree.Node<P> root)
   {
     stack = new Stack<>();
-    stack.push(root);
+    if (root != null)
+      stack.push(root);
   }
 
-  private Stack<Quadtree.Node> stack;
+  private Stack<Quadtree.Node<P>> stack;
 
 } // QuadtreeLeafIterator
