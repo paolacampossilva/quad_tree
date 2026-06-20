@@ -8,9 +8,9 @@ import lpoo.geom.*;
  *
  * @author Paulo Pagliosa
  */
-public class QuadtreeViewer extends JFrame
+public class QuadtreeViewer<P extends Point2> extends JFrame
 {
-  public QuadtreeViewer(Quadtree qt)
+  public QuadtreeViewer(Quadtree<P> qt)
   {
     super("Quadtree Viewer");
     getContentPane().setLayout(new BorderLayout());
@@ -28,18 +28,21 @@ public class QuadtreeViewer extends JFrame
     toFront();
   }
 
-  private void initViewer(Quadtree qt)
+  private void initViewer(Quadtree<P> qt)
   {
-    getContentPane().add(new QuadtreeControl(qt), BorderLayout.CENTER);
+    getContentPane().add(new QuadtreeControl<P>(qt), BorderLayout.CENTER);
   }
 
-  private final static class QuadtreeControl extends Canvas
+  private final static class QuadtreeControl <P extends Point2> extends Canvas
   {
-    private Quadtree qt;
+    private Quadtree<P> qt;
     private float scale;
 
+    private Point2 queryPoint = null;
+    private java.util.List<?> highlightedNeighbors = null;
+
     // Constructor
-    public QuadtreeControl(Quadtree qt)
+    public QuadtreeControl(Quadtree<P> qt)
     {
       this.qt = qt;
       this.scale = 1f;
@@ -63,7 +66,29 @@ public class QuadtreeViewer extends JFrame
           }
         }
       });
+
+      // bonus: captura o clique do mouse, executando a busca e atualizando a tela
+      addMouseListener(new MouseAdapter()
+      {
+        @Override
+        @SuppressWarnings("unchecked")
+        public void mouseClicked(MouseEvent evt)
+        {
+          float mx = evt.getX() / scale;
+          float my = evt.getY() / scale;
+          queryPoint = new Point2(mx,my);
+          
+          // busca pelos 5 vizinhos mais próximos (k=5) usando nosso método
+          KNN<P> knn = qt.findNeighbors((P) queryPoint, 5, null);
+          if (knn != null)
+            highlightedNeighbors = knn.toSortedList();
+          
+          repaint();
+        }
+
+      });
     }
+    
 
     private Shape shape(Bounds2 bounds)
     {
@@ -83,7 +108,7 @@ public class QuadtreeViewer extends JFrame
     {
       Graphics2D g2 = (Graphics2D) g;
 
-      for (Quadtree.NodeData node : qt)
+      for (Quadtree.NodeData<P> node : qt)
       {
         Shape r = shape(node.bounds());
 
@@ -91,9 +116,41 @@ public class QuadtreeViewer extends JFrame
         g2.fill(r);
         g2.setColor(Color.BLACK);
         g2.draw(r);
-        for (Point2 p : node)
+        for (P p : node)
+        {
+          // bonus: verifica se o ponto atual faz parte dos vizinhos mais próximos
+          boolean isNeighbor = false;
+          if (highlightedNeighbors != null)
+          {
+            for (Object obj : highlightedNeighbors)
+            {
+              KNN.Entry<?> entry = (KNN.Entry<?>) obj;
+              if (entry.point.equals(p))
+              {
+                isNeighbor = true;
+                break;
+              }
+
+            }
+
+          }
+
+          if (isNeighbor)
+            g2.setColor(Color.RED);
+          else
+            g2.setColor(Color.BLACK);
+
           drawPoint(g2, p);
+        }
+          
       }
+    
+    // bonus: desenha o ponto azul onde o usuário clicou para indicar o alvo da busca
+    if (queryPoint != null){
+      g2.setColor(Color.BLUE);
+      g2.fill(shape(queryPoint.mul(scale)));
+    } 
+
     }
 
     void drawPoint(Graphics2D g2, Point2 p)
