@@ -1,7 +1,6 @@
 package lpoo.geom;
 
 import java.util.*;
-
 /**
  * @author João Pedro Huppes Arenales
  * @author Paulo Pagliosa
@@ -234,40 +233,45 @@ public class Quadtree<P extends Point2>
 
     // o nó é folha: processamos os pontos reais dele
     else if (node.isLeaf())
-    {
-      float distance = 0.0f;
-      
+    { 
       // percorremos os pontos da folha
       for (P p : node) 
       {
         // caso nao haja filtro, ou se o ponto passar pelo filtro
         if (filter == null || filter.run(p))
         {
-          distance = p.distance(point);
+          float distance = p.distance(point);
           knn.add(p, distance);
         }        
       }
       return;
     }
-
-    // o nó é interno: varremos os filhos aplicando a logica de poda
+    // o nó é interno: ordena os filhos por proximidade, otimizando a aplicação da lógica da poda
     else
     {
-      float min_dist = 0.0f;
+      List<Node<P>> validChildren = new ArrayList<>(4);
+
       for (int i = 0; i < 4; ++i)
       {
         if (node.children[i] != null)
-        {
-          min_dist = minDistance(point, node.children[i].bounds);
-
-          // entramos no filho se o KNN ñ esta cheio OU se a região dele tem potencial de trazer algo melhor
-          if (!knn.isFull() || (min_dist <= knn.worstDistance()))
-            findNeighbors(node.children[i], point, filter, knn);
-        }
+          validChildren.add(node.children[i]);
       }
-    }
-  }
 
+      // ordena os quadrantes filhos: o que tiver a menor distancia minima até o ponto vem primeiro!
+      validChildren.sort((c1, c2) -> Float.compare(minDistance(point, c1.bounds()), minDistance(point, c2.bounds())));
+
+      for (Node<P> child : validChildren)
+      {
+        float minDist = minDistance(point, child.bounds());
+
+        // vamos ao filho se o KNN ñ esta cheio OU se a região dele tem potencial de trazer algo melhor
+        if (!knn.isFull() || minDist <= knn.worstDistance())
+          findNeighbors(child, point, filter, knn);
+      }
+
+    }
+
+  }
 
 } // Quadtree
 
