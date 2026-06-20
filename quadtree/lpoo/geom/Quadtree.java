@@ -195,6 +195,80 @@ public class Quadtree<P extends Point2>
     return count;
   }
 
+  // algoritmo Busca com Poda por AABB (branch and bround)
+
+  // metodo auxiliar: calculo de menor distância de um ponto até a AABB
+  private float minDistance(Point2 point, Bounds2  bounds)
+  {
+    Point2 min = bounds.p1(); Point2 max = bounds.p2();
+
+    float dx = 0.0f; float dy = 0.0f;
+    
+    // contribuicao do eixo X
+    if (point.x < min.x) dx = min.x - point.x;
+    else if (point.x > max.x) dx = point.x - max.x;
+
+    // constribuicao do eixo Y
+    if (point.y < min.y) dy = min.y - point.y;
+    else if (point.y > max.y) dy = point.y - max.y;
+
+    // distancia Euclidiana até a borda mais proxima
+    return (float) Math.sqrt((dx * dx) + (dy * dy));
+  }
+
+  // ponto de entrada público da busca
+  public KNN<P> findNeighbors(P point, int k, PointFunc<P> filter)
+  {
+    KNN<P> knn = new KNN<>(k);
+
+    // chama a função principal
+    findNeighbors(root, point, filter, knn);
+    return knn;
+  }
+
+  
+  private void findNeighbors(Node<P> node, P point, PointFunc<P> filter, KNN<P> knn)
+  {
+    if (node == null)
+      return;
+
+    // o nó é folha: processamos os pontos reais dele
+    else if (node.isLeaf())
+    {
+      float distance = 0.0f;
+      
+      // percorremos os pontos da folha
+      for (P p : node) 
+      {
+        // caso nao haja filtro, ou se o ponto passar pelo filtro
+        if (filter == null || filter.run(p))
+        {
+          distance = p.distance(point);
+          knn.add(p, distance);
+        }        
+      }
+      return;
+    }
+
+    // o nó é interno: varremos os filhos aplicando a logica de poda
+    else
+    {
+      float min_dist = 0.0f;
+      for (int i = 0; i < 4; ++i)
+      {
+        if (node.children[i] != null)
+        {
+          min_dist = minDistance(point, node.children[i].bounds);
+
+          // entramos no filho se o KNN ñ esta cheio OU se a região dele tem potencial de trazer algo melhor
+          if (!knn.isFull() || (min_dist <= knn.worstDistance()))
+            findNeighbors(node.children[i], point, filter, knn);
+        }
+      }
+    }
+  }
+
+
 } // Quadtree
 
 final class QuadtreeLeafIterator <P extends Point2>
@@ -214,7 +288,7 @@ final class QuadtreeLeafIterator <P extends Point2>
     if (!node.isLeaf())
       for (int i = 4; i > 0;)
         if (node.children[--i] != null)
-          stack.push(node.children[--i]);
+          stack.push(node.children[i]);
     return node;
   }
 
