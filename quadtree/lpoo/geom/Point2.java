@@ -16,6 +16,11 @@ public class Point2
     return (float)Math.sqrt(dx * dx + dy * dy);
   }
 
+  public final float distance (Point2 p)
+  {
+    return Point2.distance(this, p);
+  }
+
   public float x;
   public float y;
 
