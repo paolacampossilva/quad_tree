@@ -1,7 +1,9 @@
 package lpoo.geom;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.PriorityQueue;
+import java.util.ArrayList;
 
 public class KNN<P extends Point2> 
     implements Iterable<KNN.Entry<P>>
@@ -61,6 +63,19 @@ public class KNN<P extends Point2>
         return maxheap.iterator();
     }
 
+    public List<Entry<P>> toSortedList() {
+        PriorityQueue<Entry<P>> tempHeap = new PriorityQueue<>(this.maxheap);
+
+        ArrayList<Entry<P>> list = new ArrayList<>(this.size());
+
+        // descarregamos o heap na lista em ordem descrente
+        while(!tempHeap.isEmpty())
+            // acrescentamos na lista em ordem crescente
+            list.add(0,tempHeap.poll());
+
+        return list;
+    }
+
     public float worstDistance(){
         // vazio? entao o limite é infinto
         if(maxheap.isEmpty())
@@ -74,5 +89,7 @@ public class KNN<P extends Point2>
 /*
 NOTA TEMPORARIA:
     O interator da PriorityQueue (o que estamos usando no KNN) não percorre em ordem perfeitamente crescente ou descrecente. Os elementos vão sair na ordem da árvore binária do Heap!
-    Logo, se precisar que sai de forma ordenada ou jogue o elemento em uma lista e ordene por "distance" usando um Sort, ou vá dando .poll() em uma *cópia* do heap.
+    Logo, se precisar que sai de forma ordenada use do método toSortedList. 
+
+    Além disos, a função add, em caso de empate (o topo e o nova entrada tem ambos mesma distancia) a politica atual diz que deve se manter os primeiros elementos encontrados. Caso deseje mudar isso mude o ">" para ">="
 */
