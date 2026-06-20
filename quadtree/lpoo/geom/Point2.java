@@ -6,7 +6,7 @@ import lpoo.math.*;
  *
  * @author Paulo Pagliosa
  */
-public final class Point2
+public class Point2
 {
   public static float distance(Point2 p1, Point2 p2)
   {
