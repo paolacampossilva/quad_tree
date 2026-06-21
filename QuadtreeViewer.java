@@ -6,7 +6,9 @@ import lpoo.geom.*;
 
 /**
  *
- * @author Paulo Pagliosa
+ * @author Paola Campos da Silva 
+ * 
+ * @author Paulo Pagliosa (base)
  */
 public class QuadtreeViewer<P extends Point2> extends JFrame
 {
@@ -30,16 +32,18 @@ public class QuadtreeViewer<P extends Point2> extends JFrame
 
   private void initViewer(Quadtree<P> qt)
   {
-    getContentPane().add(new QuadtreeControl<P>(qt), BorderLayout.CENTER);
+    getContentPane().add(new QuadtreeControl<>(qt), BorderLayout.CENTER);
   }
 
-  private final static class QuadtreeControl <P extends Point2> extends Canvas
+  private final static class QuadtreeControl<P extends Point2> extends Canvas
   {
     private Quadtree<P> qt;
     private float scale;
 
-    private Point2 queryPoint = null;
-    private java.util.List<?> highlightedNeighbors = null;
+    // -------- estado da busca interativa (bonus A5) --------
+    private static final int SEARCH_K = 8;
+    private P searchReference;
+    private java.util.List<KNN.Entry<P>> searchResult;
 
     // Constructor
     public QuadtreeControl(Quadtree<P> qt)
@@ -66,29 +70,47 @@ public class QuadtreeViewer<P extends Point2> extends JFrame
           }
         }
       });
-
-      // bonus: captura o clique do mouse, executando a busca e atualizando a tela
       addMouseListener(new MouseAdapter()
       {
         @Override
-        @SuppressWarnings("unchecked")
         public void mouseClicked(MouseEvent evt)
         {
-          float mx = evt.getX() / scale;
-          float my = evt.getY() / scale;
-          queryPoint = new Point2(mx,my);
-          
-          // busca pelos 5 vizinhos mais próximos (k=5) usando nosso método
-          KNN<P> knn = qt.findNeighbors((P) queryPoint, 5, null);
-          if (knn != null)
-            highlightedNeighbors = knn.toSortedList();
-          
-          repaint();
+          runSearchAt(evt.getX(), evt.getY());
         }
-
       });
+      setFocusable(true);
     }
-    
+
+    /**
+     * Converte o clique (em pixels de tela) para coordenadas do mundo,
+     * encontra o ponto da arvore mais proximo do clique e usa esse
+     * ponto como referencia para uma busca KNN, guardando o resultado
+     * para ser destacado em paint().
+     */
+    private void runSearchAt(int screenX, int screenY)
+    {
+      Point2 worldClick = new Point2(screenX / scale, screenY / scale);
+      P nearest = null;
+      float bestDist = Float.MAX_VALUE;
+
+      for (Quadtree.NodeData<P> node : qt)
+        for (P p : node)
+        {
+          float d = Point2.distance(worldClick, p);
+
+          if (d < bestDist)
+          {
+            bestDist = d;
+            nearest = p;
+          }
+        }
+      if (nearest == null)
+        return;
+
+      searchReference = nearest;
+      searchResult = qt.findNeighbors(nearest, SEARCH_K, null).toSortedList();
+      repaint();
+    }
 
     private Shape shape(Bounds2 bounds)
     {
@@ -101,6 +123,11 @@ public class QuadtreeViewer<P extends Point2> extends JFrame
     private Shape shape(Point2 p)
     {
       return new Ellipse2D.Float(p.x - 2, p.y - 2, 4, 4);
+    }
+
+    private Shape shape(Point2 p, float radius)
+    {
+      return new Ellipse2D.Float(p.x - radius, p.y - radius, radius * 2, radius * 2);
     }
 
     @Override
@@ -117,44 +144,39 @@ public class QuadtreeViewer<P extends Point2> extends JFrame
         g2.setColor(Color.BLACK);
         g2.draw(r);
         for (P p : node)
-        {
-          // bonus: verifica se o ponto atual faz parte dos vizinhos mais próximos
-          boolean isNeighbor = false;
-          if (highlightedNeighbors != null)
-          {
-            for (Object obj : highlightedNeighbors)
-            {
-              KNN.Entry<?> entry = (KNN.Entry<?>) obj;
-              if (entry.point.equals(p))
-              {
-                isNeighbor = true;
-                break;
-              }
-
-            }
-
-          }
-
-          if (isNeighbor)
-            g2.setColor(Color.RED);
-          else
-            g2.setColor(Color.BLACK);
-
-          drawPoint(g2, p);
-        }
-          
+          drawPoint(g2, p, Color.BLACK);
       }
-    
-    // bonus: desenha o ponto azul onde o usuário clicou para indicar o alvo da busca
-    if (queryPoint != null){
-      g2.setColor(Color.BLUE);
-      g2.fill(shape(queryPoint.mul(scale)));
-    } 
 
+      // bonus A5: destaca o resultado da ultima busca KNN feita por clique
+      if (searchResult != null)
+      {
+        for (KNN.Entry<P> entry : searchResult)
+          drawPoint(g2, entry.point, Color.RED);
+        if (searchReference != null)
+        {
+          drawPoint(g2, searchReference, Color.BLUE);
+
+          // circulo tracejado mostrando o alcance ate o vizinho mais distante do KNN
+          if (!searchResult.isEmpty())
+          {
+            float worstDistance = searchResult.get(searchResult.size() - 1).distance;
+            Point2 center = searchReference.mul(scale);
+            Shape circle = shape(center, worstDistance * scale);
+            Stroke oldStroke = g2.getStroke();
+
+            g2.setStroke(new BasicStroke(1f, BasicStroke.CAP_BUTT,
+              BasicStroke.JOIN_MITER, 10f, new float[]{ 4f }, 0f));
+            g2.setColor(Color.BLUE);
+            g2.draw(circle);
+            g2.setStroke(oldStroke);
+          }
+        }
+      }
     }
 
-    void drawPoint(Graphics2D g2, Point2 p)
+    void drawPoint(Graphics2D g2, Point2 p, Color color)
     {
+      g2.setColor(color);
       g2.fill(shape(p.mul(scale)));
     }
 
