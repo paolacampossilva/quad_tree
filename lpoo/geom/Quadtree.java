@@ -4,7 +4,9 @@ import java.util.*;
 /**
  * @author João Pedro Huppes Arenales
  * @author Valentina Campos Soares
- * @author Paulo Pagliosa
+ * @author Paola Campos da Silva
+ * 
+ * @author Paulo Pagliosa (base)
  */
 public class Quadtree<P extends Point2> 
   implements Iterable<Quadtree.NodeData<P>>
@@ -66,6 +68,14 @@ public class Quadtree<P extends Point2>
   public Quadtree(final P[] points, int pointsPerNode)
   {
     this(bounds(points), pointsPerNode);
+    for (P p : points)
+      root.add(p);
+    split(root);
+  }
+
+  public Quadtree(final P[] points, int pointsPerNode, int maxDepth)
+  {
+    this(bounds(points), pointsPerNode, maxDepth);
     for (P p : points)
       root.add(p);
     split(root);
