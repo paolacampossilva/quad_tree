@@ -1,10 +1,10 @@
 package lpoo.geom;
 
 /**
- *
+ * @author Valentina Campos Soares
  * @author Paulo Pagliosa
  */
-public final class Particle2
+public class Particle2
   extends Point2
 {
   public float vx;
