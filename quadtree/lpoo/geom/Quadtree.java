@@ -99,7 +99,6 @@ public class Quadtree<P extends Point2>
 
   public static final float fatFactor = 1.01f;
   public static final int minPointsPerNode = 5;
-  public static final int maxDepth = 8;
 
   static class Node <P extends Point2> extends NodeData<P>
   {
@@ -135,12 +134,22 @@ public class Quadtree<P extends Point2>
   private Node<P> root;
   private int nodeCount;
   private int leafCount;
+  public final int maxDepth;
 
   private Quadtree(final Bounds2 bounds, int pointsPerNode)
   {
     this.pointsPerNode = Math.max(minPointsPerNode, pointsPerNode);
     root = new Node<P>(new Bounds2(bounds).inflate(fatFactor));
     nodeCount = 1;
+    maxDepth = 8;
+  }
+
+  private Quadtree(final Bounds2 bounds, int pointsPerNode, int maxDepth)
+  {
+    this.pointsPerNode = Math.max(minPointsPerNode, pointsPerNode);
+    root = new Node<P>(new Bounds2(bounds).inflate(fatFactor));
+    nodeCount = 1;
+    this.maxDepth = maxDepth;
   }
 
   @SuppressWarnings("unchecked")
