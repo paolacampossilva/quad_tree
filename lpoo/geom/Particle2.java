@@ -1,8 +1,10 @@
 package lpoo.geom;
 
 /**
+ * 
  * @author Valentina Campos Soares
- * @author Paulo Pagliosa
+ * 
+ * @author Paulo Pagliosa (base)
  */
 public class Particle2
   extends Point2
