@@ -3,6 +3,7 @@ package lpoo.geom;
 import java.util.*;
 /**
  * @author João Pedro Huppes Arenales
+ * @author Valentina Campos Soares
  * @author Paulo Pagliosa
  */
 public class Quadtree<P extends Point2> 
@@ -224,8 +225,72 @@ public class Quadtree<P extends Point2>
     findNeighbors(root, point, filter, knn);
     return knn;
   }
+  // verifica se a AABB intersecta o círculo de busca
+  private boolean intersects(Bounds2 bounds, Point2 point, float radius)
+{
+  Point2 min = bounds.p1();
+  Point2 max = bounds.p2();
 
-  
+  //encontrar os pontos da AABB mais proximo do ponto
+  float closestX = Math.max(min.x,
+    Math.min(point.x, max.x));
+
+  float closestY = Math.max(min.y,
+    Math.min(point.y, max.y));
+
+  //calcular a distancia
+  float dx = point.x - closestX;
+  float dy = point.y - closestY;
+
+  // se a distancia até a AABB está dentro do raio 
+  return (dx * dx + dy * dy) <= radius * radius;
+}
+
+  public long forEachNeighbor(P point, float radius, PointFunc<P> f, PointFunc<P> filter) { 
+    return forEachNeighbor(root, point, radius, f, filter);
+  }
+
+  //  executa f para os pontos da arvore cuja distancia do point nao for maior que radius
+  private long forEachNeighbor(Node<P> node, P point, float radius, PointFunc<P> f, PointFunc<P> filter)
+{
+    // testa interseção da AABB do nó com o círculo
+    if (!intersects(node.bounds(), point, radius))
+        return 0;
+
+    long count = 0;
+
+    // processa os pontos reais
+    if (node.isLeaf())
+    {
+        for (P p : node)
+        {   
+            //condição para que o ponto p não verificar ele mesmo
+            if (p == point)
+                continue;
+            // aplica o filtro se existir
+            if (filter != null && !filter.run(p))
+                continue;
+
+            // verifica se o ponto está dentro do raio
+            if (p.distance(point) <= radius)
+            {
+                count++;
+                // interrompe a busca
+                if (!f.run(p))
+                    return count;
+            }
+        }
+    }
+    // nó interno: percorre os filhos
+    else
+    {
+        for (int i = 0; i < 4; i++)
+            count += forEachNeighbor(node.children[i], point, radius, f, filter);
+    }
+
+    return count;
+  }
+
   private void findNeighbors(Node<P> node, P point, PointFunc<P> filter, KNN<P> knn)
   {
     if (node == null)
