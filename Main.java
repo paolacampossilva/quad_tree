@@ -5,11 +5,11 @@ import lpoo.geom.*;
 /**
  *
  * @author Paola Campos da Silva
- * 
  * @author Paulo Pagliosa (base)
  */
 public class Main
 {
+
   // ---------------------------------------------------------------
   // Leitura / geracao de pontos
   // ---------------------------------------------------------------
@@ -25,10 +25,7 @@ public class Main
   }
 
   /**
-   * Le pontos de um arquivo texto no formato usado por points.txt:
-   *   linha 1: largura altura (tamanho do dominio)
-   *   linha 2: n (quantidade de pontos)
-   *   linhas seguintes: x y (um ponto por linha)
+   * Le pontos de um arquivo texto no formato usado por points.txt
    */
   static Point2[] readPointsFromFile(String filename)
     throws IOException
@@ -38,7 +35,9 @@ public class Main
       StringTokenizer t = new StringTokenizer(is.readLine());
       Point2 domain = new Point2(toFloat(t.nextToken()), toFloat(t.nextToken()));
 
-      domain.print("Domain size: ");
+      System.out.println();
+      Console.info("Domain size read from file:");
+      domain.print("      -> ");
 
       int n = toInteger(is.readLine());
       Point2[] points = new Point2[n];
@@ -48,13 +47,13 @@ public class Main
         t = new StringTokenizer(is.readLine());
         points[i] = new Point2(toFloat(t.nextToken()), toFloat(t.nextToken()));
       }
-      System.out.printf("%d points read%n", n);
+      Console.info(String.format("%d points successfully read.", n));
       return points;
     }
   }
 
   /**
-   * Gera n pontos aleatorios dentro de [0, domain.x] x [0, domain.y].
+   * Gera n pontos aleatorios.
    */
   static Point2[] randomPoints(Point2 domain, int n)
   {
@@ -68,28 +67,26 @@ public class Main
     return points;
   }
 
-  // Paleta fixa usada para colorir particulas geradas aleatoriamente.
-  // (255,0,0) vermelho, (0,255,0) verde, (0,0,255) azul, (255,255,0) amarelo
+  // Paleta fixa usada para colorir particulas
   static final int[][] PALETTE =
   {
-    { 255, 0, 0 },
-    { 0, 255, 0 },
-    { 0, 0, 255 },
-    { 255, 255, 0 },
+    { 255, 0, 0 },   // Red
+    { 0, 255, 0 },   // Green
+    { 0, 0, 255 },   // Blue
+    { 255, 255, 0 }, // Yellow
   };
 
   static String colorName(int[] rgb)
   {
-    if (rgb[0] == 255 && rgb[1] == 0 && rgb[2] == 0) return "red";
-    if (rgb[0] == 0 && rgb[1] == 255 && rgb[2] == 0) return "green";
-    if (rgb[0] == 0 && rgb[1] == 0 && rgb[2] == 255) return "blue";
-    if (rgb[0] == 255 && rgb[1] == 255 && rgb[2] == 0) return "yellow";
-    return String.format("rgb(%d,%d,%d)", rgb[0], rgb[1], rgb[2]);
+    if (rgb[0] == 255 && rgb[1] == 0 && rgb[2] == 0) return "RED";
+    if (rgb[0] == 0 && rgb[1] == 255 && rgb[2] == 0) return "GREEN";
+    if (rgb[0] == 0 && rgb[1] == 0 && rgb[2] == 255) return "BLUE";
+    if (rgb[0] == 255 && rgb[1] == 255 && rgb[2] == 0) return "YELLOW";
+    return String.format("RGB(%d,%d,%d)", rgb[0], rgb[1], rgb[2]);
   }
 
   /**
-   * Gera n particulas aleatorias dentro de [0, domain.x] x [0, domain.y],
-   * cada uma com uma cor sorteada da paleta fixa.
+   * Gera n particulas aleatorias.
    */
   static ColorParticle2[] randomParticles(Point2 domain, int n)
   {
@@ -108,68 +105,55 @@ public class Main
   }
 
   // ---------------------------------------------------------------
-  // Filtro de cor (lambda) - pedido explicitamente em A4
+  // Filtro de cor (lambda)
   // ---------------------------------------------------------------
 
-  /**
-   * Devolve um PointFunc que aceita somente particulas com a cor dada,
-   * descartando as demais do KNN/busca por raio. ColorParticle2 expoe
-   * os campos r, g, b diretamente (sem metodo isColor), entao a
-   * comparacao e feita aqui mesmo, dentro do lambda.
-   */
   static PointFunc<ColorParticle2> sameColorFilter(int r, int g, int b)
   {
     return p -> p.r == r && p.g == g && p.b == b;
   }
 
   // ---------------------------------------------------------------
-  // Metodos de teste (parte central do A4)
+  // Métodos de teste (A4)
   // ---------------------------------------------------------------
 
-  /**
-   * Imprime o ponto de referencia (indicado por index) e os k vizinhos
-   * mais proximos encontrados via findNeighbors, com suas distancias.
-   * KNN.toSortedList() devolve os pares (Entry) ja ordenados da menor
-   * para a maior distancia.
-   */
   static <P extends Point2> void testKNN(
     P[] points, Quadtree<P> qt, int index, int k, PointFunc<P> filter)
   {
     P reference = points[index];
 
-    System.out.println("---- KNN test ----");
-    System.out.println("Reference point [" + index + "]: " + reference);
-    System.out.println("k = " + k);
-
+    Console.printSubHeader("KNN SEARCH RESULT");
+    System.out.println("   Reference point (Index " + index + "): " + reference);
+    System.out.println("   Searching for the " + k + " nearest neighbors...\n");
+    
     KNN<P> result = qt.findNeighbors(reference, k, filter);
     List<KNN.Entry<P>> sorted = result.toSortedList();
 
-    System.out.println("Found: " + sorted.size());
-    for (KNN.Entry<P> entry : sorted)
-      System.out.printf("  %s  distance = %.4f%n", entry.point, entry.distance);
+    System.out.println("   >> Neighbors found: " + sorted.size());
+    
+    for (int i = 0; i < sorted.size(); i++) {
+      KNN.Entry<P> entry = sorted.get(i);
+      System.out.printf("      [%d] %s | Distance: %.4f%n", (i + 1), entry.point.toString(), entry.distance);
+    }
   }
 
-  /**
-   * Imprime o ponto de referencia e todos os pontos encontrados dentro
-   * de radius, usando forEachNeighbor.
-   */
   static <P extends Point2> void testRadiusSearch(
     P[] points, Quadtree<P> qt, int index, float radius, PointFunc<P> filter)
   {
     P reference = points[index];
 
-    System.out.println("---- Radius test ----");
-    System.out.println("Reference point [" + index + "]: " + reference);
-    System.out.println("radius = " + radius);
+    Console.printSubHeader("RADIUS SEARCH RESULT");
+    System.out.println("   Reference point (Index " + index + "): " + reference);
+    System.out.println("   Search radius: " + radius + "\n");
 
     long count = qt.forEachNeighbor(reference, radius, p ->
     {
       float d = Point2.distance(reference, p);
-      System.out.printf("  %s  distance = %.4f%n", p, d);
-      return true; // continua ate esgotar os pontos dentro do raio
+      System.out.printf("      >> %s | Distance: %.4f%n", p.toString(), d);
+      return true; 
     }, filter);
 
-    System.out.println("Total processed: " + count);
+    System.out.println("\n   >> Total points found within radius: " + count);
   }
 
   // ---------------------------------------------------------------
@@ -178,9 +162,16 @@ public class Main
 
   public static void main(String[] args)
   {
+    Console.printHeader("QUADTREE TEST SUITE");
+    
     try
     {
-      char kind = Console.readOption("Use (p)oints or (c)olored particles", "pc");
+      System.out.println("   Select the data type to test:");
+      System.out.println("    [p] Points (Basic 2D Coordinates)");
+      System.out.println("    [c] Colored Particles (Points + RGB Data)");
+      System.out.println();
+      
+      char kind = Console.readOption("Your choice", "pc");
 
       if (kind == 'p')
         runForPoints();
@@ -189,7 +180,7 @@ public class Main
     }
     catch (Exception e)
     {
-      System.out.println(e.getMessage());
+      Console.error(e.getMessage());
     }
   }
 
@@ -197,34 +188,49 @@ public class Main
 
   static void runForPoints() throws IOException
   {
+    Console.printSubHeader("POINT CONFIGURATION");
     Point2[] points = loadPoints();
-    int nmax = Console.readInt("nmax (max points per node before subdividing)");
-    int lmax = Console.readInt("lmax (max tree depth)");
+    
+    System.out.println();
+    int nmax = Console.readInt("Max points per node before subdividing (nmax)");
+    int lmax = Console.readInt("Max tree depth (lmax)");
+    
+    System.out.println();
+    Console.info("Building Quadtree...");
     Quadtree<Point2> qtree = new Quadtree<>(points, nmax, lmax);
 
-    qtree.bounds().print("Quadtree bounds: ");
-    System.out.printf("Nodes: %d%nLeaf nodes: %d%n", qtree.size(), qtree.leafCount());
+    Console.info("Quadtree built successfully!");
+    qtree.bounds().print("      -> Bounds: ");
+    System.out.printf("      -> Total Nodes: %d%n      -> Leaf Nodes: %d%n", qtree.size(), qtree.leafCount());
 
-    searchMenu(points, qtree, null); // sem filtro de cor para Point2
+    searchMenu(points, qtree, null);
 
-    if (Console.readOption("Open viewer? (y/n)", "yn") == 'y')
+    System.out.println();
+    if (Console.readOption("Open Quadtree viewer window? (y/n)", "yn") == 'y')
       new QuadtreeViewer<>(qtree);
+      
+    Console.printHeader("END OF EXECUTION");
   }
 
   static Point2[] loadPoints() throws IOException
   {
-    char src = Console.readOption("Read from (f)ile or (r)andom generation", "fr");
+    System.out.println("\n   Select data source:");
+    System.out.println("    [f] Read from file");
+    System.out.println("    [r] Generate random points\n");
+    char src = Console.readOption("Source", "fr");
 
     if (src == 'f')
     {
+      System.out.println();
       String fn = Console.readString("File name");
       return readPointsFromFile(fn);
     }
     else
     {
+      System.out.println();
       float w = Console.readFloat("Domain width");
       float h = Console.readFloat("Domain height");
-      int n = Console.readInt("Number of points");
+      int n = Console.readInt("Number of points to generate");
       return randomPoints(new Point2(w, h), n);
     }
   }
@@ -233,90 +239,107 @@ public class Main
 
   static void runForParticles()
   {
+    Console.printSubHeader("COLORED PARTICLES CONFIGURATION");
+    System.out.println();
+    
     float w = Console.readFloat("Domain width");
     float h = Console.readFloat("Domain height");
-    int n = Console.readInt("Number of particles");
+    int n = Console.readInt("Number of particles to generate");
 
+    System.out.println();
+    Console.info("Generating random particles...");
     ColorParticle2[] particles = randomParticles(new Point2(w, h), n);
-    int nmax = Console.readInt("nmax (max points per node before subdividing)");
-    int lmax = Console.readInt("lmax (max tree depth)");
+    
+    System.out.println();
+    int nmax = Console.readInt("Max points per node before subdividing (nmax)");
+    int lmax = Console.readInt("Max tree depth (lmax)");
+    
+    System.out.println();
+    Console.info("Building Quadtree...");
     Quadtree<ColorParticle2> qtree = new Quadtree<>(particles, nmax, lmax);
 
-    qtree.bounds().print("Quadtree bounds: ");
-    System.out.printf("Nodes: %d%nLeaf nodes: %d%n", qtree.size(), qtree.leafCount());
+    Console.info("Quadtree built successfully!");
+    qtree.bounds().print("      -> Bounds: ");
+    System.out.printf("      -> Total Nodes: %d%n      -> Leaf Nodes: %d%n", qtree.size(), qtree.leafCount());
 
     PointFunc<ColorParticle2> filter = chooseColorFilter();
 
     searchMenu(particles, qtree, filter);
 
-    if (Console.readOption("Open viewer? (y/n)", "yn") == 'y')
+    System.out.println();
+    if (Console.readOption("Open Quadtree viewer window? (y/n)", "yn") == 'y')
       new QuadtreeViewer<>(qtree);
+      
+    Console.printHeader("END OF EXECUTION");
   }
 
-  /**
-   * Pergunta ao usuario se deseja filtrar por cor e, em caso afirmativo,
-   * qual cor da paleta usar. Devolve null se nenhum filtro deve ser
-   * aplicado (todas as particulas sao testadas).
-   */
   static PointFunc<ColorParticle2> chooseColorFilter()
   {
-    if (Console.readOption("Filter by color? (y/n)", "yn") != 'y')
+    Console.printSubHeader("FILTER SETTINGS");
+    System.out.println();
+    
+    if (Console.readOption("Enable color filter? (y/n)", "yn") != 'y') {
+      System.out.println("\n   -> [Filter Disabled] Searching all particles.");
       return null;
+    }
 
-    System.out.println("Available colors: 0=red 1=green 2=blue 3=yellow");
-    int choice = Console.readInt("Color index (0-3)");
+    System.out.println("\n   Available colors:");
+    System.out.println("    [0] Red\n    [1] Green\n    [2] Blue\n    [3] Yellow\n");
+    int choice = Console.readInt("Choose color index (0-3)");
 
     if (choice < 0 || choice >= PALETTE.length)
     {
-      Console.error("invalid color index, no filter applied");
+      Console.error("Invalid color index. Filter disabled");
       return null;
     }
 
     int[] c = PALETTE[choice];
-    System.out.println("Filtering by color: " + colorName(c));
+    System.out.println("\n   -> [Filter Enabled] Only searching for " + colorName(c) + " particles.");
     return sameColorFilter(c[0], c[1], c[2]);
   }
 
-  // -------- menu de buscas (KNN / raio), comum a pontos e particulas --------
+  // -------- menu de buscas (KNN / raio) --------
 
   static <P extends Point2> void searchMenu(P[] points, Quadtree<P> qtree, PointFunc<P> filter)
   {
     for (;;)
     {
-      char op = Console.readOption(
-        "(k)NN search, (r)adius search or (q)uit", "krq");
+      Console.printHeader("INTERACTIVE SEARCH MENU");
+      System.out.println("   [k] KNN Search (K-Nearest Neighbors)");
+      System.out.println("   [r] Radius Search");
+      System.out.println("   [q] Quit\n");
+      
+      char op = Console.readOption("Choose search operation", "krq");
 
-      if (op == 'q')
-        break;
+      if (op == 'q') break;
 
+      System.out.println();
       int index = readValidIndex(points.length);
-      if (index < 0)
-        continue; // indice invalido, tenta de novo
+      if (index < 0) continue; 
 
       if (op == 'k')
       {
-        int k = Console.readInt("k");
+        int k = Console.readInt("Enter 'k' (number of neighbors)");
         testKNN(points, qtree, index, k, filter);
       }
       else
       {
-        float radius = Console.readFloat("radius");
+        float radius = Console.readFloat("Enter search radius");
         testRadiusSearch(points, qtree, index, radius, filter);
       }
+      
+      System.out.println();
+      Console.readString("Press ENTER to continue");
     }
   }
 
-  /**
-   * Le um indice do usuario e valida contra o tamanho do array, evitando
-   * ArrayIndexOutOfBoundsException. Devolve -1 se o indice for invalido.
-   */
   static int readValidIndex(int length)
   {
-    int index = Console.readInt("Reference point index (0.." + (length - 1) + ")");
+    int index = Console.readInt("Enter reference point index (0 to " + (length - 1) + ")");
 
     if (index < 0 || index >= length)
     {
-      Console.error("index out of range");
+      Console.error("Index out of range");
       return -1;
     }
     return index;

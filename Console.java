@@ -5,7 +5,9 @@ import java.util.Date;
 
 /**
  *
- * @author Paulo Pagliosa
+ * @author Paola Campos da Silva 
+ * 
+ * @author Paulo Pagliosa (base)
  */
 public class Console
 {
@@ -20,14 +22,42 @@ public class Console
     out = System.out;
   }
 
+  // ---------------------------------------------------------------
+  // Funções Estilização do Menu - Adicionadas
+  // ---------------------------------------------------------------
+  
+  public static void printHeader(String title) {
+    out.println("\n==================================================");
+    int padding = (50 - title.length()) / 2;
+    for (int i = 0; i < padding; i++) out.print(" ");
+    out.println(title);
+    out.println("==================================================");
+  }
+
+  public static void printSubHeader(String title) {
+    out.println("\n--------------------------------------------------");
+    out.println("  " + title);
+    out.println("--------------------------------------------------");
+  }
+
+  public static void info(String message) {
+    out.println("  [Info] " + message);
+  }
+
+  // ---------------------------------------------------------------
+  // Métodos Originais Modificados
+  // ---------------------------------------------------------------
+
   private static void prompt(String message)
   {
-    out.print(message + ": ");
+    // Adiciona uma formatação mais limpa antes de ler o dado
+    out.print("   > " + message + ": ");
   }
 
   public static void error(String message)
   {
-    out.println("**Error: " + message + ". Try again");
+    // Destaca o erro visualmente
+    out.println("\n   [!] Error: " + message + ". Try again.");
   }
 
   private static void inputError()
@@ -143,7 +173,7 @@ public class Console
       }
       catch (ParseException e)
       {
-        error("invalide date format");
+        error("invalid date format");
       }
   }
 
