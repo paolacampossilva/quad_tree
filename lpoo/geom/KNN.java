@@ -74,13 +74,15 @@ public class KNN<P extends Point2>
   public List<Entry<P>> toSortedList() 
   {
     PriorityQueue<Entry<P>> tempHeap = new PriorityQueue<>(this.maxheap);
-
     ArrayList<Entry<P>> list = new ArrayList<>(this.size());
 
-    // descarregamos o heap na lista em ordem descrente
+    // Adiciona normalmente no fim 
+    // A lista vai ficar em ordem DECRESCENTE (Maior -> Menor)
     while(!tempHeap.isEmpty())
-      // acrescentamos na lista em ordem crescente
-      list.add(0,tempHeap.poll());
+      list.add(tempHeap.poll());
+
+    // Inverte a lista inteira de uma só vez para virar CRESCENTE (Menor -> Maior)
+    java.util.Collections.reverse(list);
 
     return list;
   }
@@ -95,11 +97,3 @@ public class KNN<P extends Point2>
       return maxheap.peek().distance;
   }
 }
-
-/*
-NOTA TEMPORARIA:
-  O interator da PriorityQueue (o que estamos usando no KNN) não percorre em ordem perfeitamente crescente ou descrecente. Os elementos vão sair na ordem da árvore binária do Heap!
-  Logo, se precisar que sai de forma ordenada use do método toSortedList. 
-
-  Além disos, a função add, em caso de empate (o topo e o nova entrada tem ambos mesma distancia) a politica atual diz que deve se manter os primeiros elementos encontrados. Caso deseje mudar isso mude o ">" para ">="
-*/

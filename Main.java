@@ -117,24 +117,29 @@ public class Main
   // Métodos de teste (A4)
   // ---------------------------------------------------------------
 
-  static <P extends Point2> void testKNN(
+  static <P extends Point2> void testKNNSearch(
     P[] points, Quadtree<P> qt, int index, int k, PointFunc<P> filter)
   {
     P reference = points[index];
 
     Console.printSubHeader("KNN SEARCH RESULT");
     System.out.println("   Reference point (Index " + index + "): " + reference);
-    System.out.println("   Searching for the " + k + " nearest neighbors...\n");
-    
-    KNN<P> result = qt.findNeighbors(reference, k, filter);
-    List<KNN.Entry<P>> sorted = result.toSortedList();
+    System.out.println("   K: " + k + "\n");
 
-    System.out.println("   >> Neighbors found: " + sorted.size());
-    
-    for (int i = 0; i < sorted.size(); i++) {
-      KNN.Entry<P> entry = sorted.get(i);
-      System.out.printf("      [%d] %s | Distance: %.4f%n", (i + 1), entry.point.toString(), entry.distance);
+    // 1. Executa a busca que preenche o seu Max-Heap interno
+    KNN<P> knn = qt.findNeighbors(reference, k, filter);
+
+    // 2. OBRIGATÓRIO: Chamar o método que você criou para ordenar
+    List<KNN.Entry<P>> sortedResults = knn.toSortedList();
+
+    // 3. Imprime a lista já perfeitamente ordenada (Menor -> Maior distância)
+    for (KNN.Entry<P> entry : sortedResults) 
+    {
+      System.out.printf("      >> %s | Distance: %.4f%n", 
+        entry.point.toString(), entry.distance);
     }
+
+    System.out.println("\n   >> Total neighbors found: " + knn.size());
   }
 
   static <P extends Point2> void testRadiusSearch(
@@ -146,12 +151,33 @@ public class Main
     System.out.println("   Reference point (Index " + index + "): " + reference);
     System.out.println("   Search radius: " + radius + "\n");
 
+    // Classe auxiliar local para guardar o ponto e a sua distância
+    class NeighborResult {
+      P point;
+      float distance;
+      NeighborResult(P point, float distance) {
+        this.point = point;
+        this.distance = distance;
+      }
+    }
+    
+    // Lista para coletar todos os pontos encontrados no raio
+    List<NeighborResult> foundNeighbors = new ArrayList<>();
+
     long count = qt.forEachNeighbor(reference, radius, p ->
     {
       float d = Point2.distance(reference, p);
-      System.out.printf("      >> %s | Distance: %.4f%n", p.toString(), d);
-      return true; 
+      foundNeighbors.add(new NeighborResult(p, d));
+      return true; // Continua a busca
     }, filter);
+
+    // Ordena a lista da menor para a maior distância
+    foundNeighbors.sort((a, b) -> Float.compare(a.distance, b.distance));
+
+    // Agora sim, imprime os resultados já ordenados
+    for (NeighborResult res : foundNeighbors) {
+      System.out.printf("      >> %s | Distance: %.4f%n", res.point.toString(), res.distance);
+    }
 
     System.out.println("\n   >> Total points found within radius: " + count);
   }
@@ -320,7 +346,7 @@ public class Main
       if (op == 'k')
       {
         int k = Console.readInt("Enter 'k' (number of neighbors)");
-        testKNN(points, qtree, index, k, filter);
+        testKNNSearch(points, qtree, index, k, filter);
       }
       else
       {
