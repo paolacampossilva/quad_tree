@@ -9,7 +9,7 @@ Autores:
 - Valentina Campos Soares
 
 Vídeo: [LINK DO VÍDEO]
-Repositório no GitHub: [LINK DO GITHUB]
+Repositório no GitHub: https://github.com/paolacampossilva/quad_tree
 
 -----------------------------------------------------------
 Compilação e Execução
