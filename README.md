@@ -1,12 +1,71 @@
 # TRABALHO 2 - LPOO 2026
 > Quadtree / KNN / Busca por raio
 
+Este projeto contém a implementação de uma estrutura Quadtree para indexação espacial, incluindo buscas por Raio e K-Nearest Neighbors (KNN), com suporte a filtros (lambdas). Inclui também interfaces gráficas interativas e animadas para demonstração visual.
+
 Autores:
 - João Pedro Huppes Arenales
 - Paola Campos da Silva
 - Valentina Campos Soares
 
 Vídeo: [LINK DO VÍDEO]
+
+---
+
+## Compilação e Execução
+
+### 1. Como Compilar
+
+Certifique-se de ter o Java instalado (JDK). Abra o terminal ou prompt de comando na pasta raiz do projeto (onde estão os arquivos .java principais) e compile todos os arquivos com o comando:
+
+```javac lpoo/geom/*.java *.java```
+
+---
+
+### 2. Como Executar os Programas
+
+O projeto possui 3 executáveis distintos, desenhados para testar diferentes requisitos do trabalho.
+
+#### A) Menu Principal e Testes de Terminal
+
+Arquivo: `Main.java`
+
+Descrição: Executável principal (Requisitos A1 a A4). Abre um menu interativo no terminal, permitindo a geração de pontos ou partículas coloridas e a execução manual das buscas (Raio e KNN), exibindo os resultados ordenados por distância.
+
+Comando para executar:
+```java Main```
+
+
+#### B) Visualizador Gráfico Estático (Bônus A5)
+
+Arquivo: `TestViewer.java`
+
+Descrição: Demonstra a interface gráfica básica exigida no bônus. Gera uma Quadtree estática com 100 pontos aleatórios.
+
+Interações:
+- Clique com o mouse em qualquer local da janela para buscar os 8 vizinhos mais próximos (KNN).
+- O ponto mais próximo do clique fica AZUL, os vizinhos VERMELHOS, e um círculo tracejado mostra a fronteira da busca.
+- Teclas '+' e '-' para Zoom.
+
+Comando para executar:
+```java TestViewer```
+
+
+#### C) Visualizador Gráfico Animado (Bônus Avançado)
+
+Arquivo: `TestAnimatedViewer.java`
+
+Descrição: Utiliza um `Timer` a 60 FPS e um `PointUpdater` para simular cinemática e colisões de partículas, reconstruindo a Quadtree em tempo real.
+
+Interações:
+- Tecla 'P': Pausa ou retoma a animação.
+- Clique com o mouse (apenas com a animação pausada): Executa a busca KNN interativa.
+- Teclas '+' e '-' para Zoom.
+
+Comando para executar:
+```java TestAnimatedViewer```
+
+---
 
 ## Tipos de commit
 

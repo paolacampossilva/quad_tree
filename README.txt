@@ -1,6 +1,8 @@
 TRABALHO 2 - LPOO 2026
 Quadtree / KNN / Busca por raio
 
+Este projeto contém a implementação de uma estrutura Quadtree para indexação espacial, incluindo buscas por Raio e K-Nearest Neighbors (KNN), com suporte a filtros (lambdas). Inclui também interfaces gráficas interativas e animadas para demonstração visual.
+
 Autores:
 - João Pedro Huppes Arenales
 - Paola Campos da Silva
@@ -8,6 +10,53 @@ Autores:
 
 Vídeo: [LINK DO VÍDEO]
 Repositório no GitHub: [LINK DO GITHUB]
+
+-----------------------------------------------------------
+Compilação e Execução
+-----------------------------------------------------------
+
+O projeto possui 3 executáveis distintos, desenhados para testar diferentes requisitos do trabalho.
+
+1. Menu Principal e Testes de Terminal
+
+Arquivo: Main.java
+
+Descrição: Executável principal (Requisitos A1 a A4). Abre um menu interativo no terminal, permitindo a geração de pontos ou partículas coloridas e a execução manual das buscas (Raio e KNN), exibindo os resultados ordenados por distância.
+
+Comando para compilar e executar:
+javac Main.java
+java Main
+
+2. Visualizador Gráfico Estático (Bônus A5)
+
+Arquivo: TestViewer.java
+
+Descrição: Demonstra a interface gráfica básica exigida no bônus. Gera uma Quadtree estática com 100 pontos aleatórios.
+
+Interações:
+- Clique com o mouse em qualquer local da janela para buscar os 8 vizinhos mais próximos (KNN).
+- O ponto mais próximo do clique fica AZUL, os vizinhos VERMELHOS, e um círculo tracejado mostra a fronteira da busca.
+- Teclas '+' e '-' para Zoom.
+
+Comando para compilar e executar:
+javac TestViewer.java
+java TestViewer
+
+3. Visualizador Gráfico Animado (Bônus Avançado)
+
+Arquivo: TestAnimatedViewer.java
+
+Descrição: Utiliza um Timer a 60 FPS e um PointUpdater para simular cinemática e colisões de partículas, reconstruindo a Quadtree em tempo real.
+
+Interações:
+- Tecla 'P': Pausa ou retoma a animação.
+- Clique com o mouse (apenas com a animação pausada): Executa a busca KNN interativa.
+- Teclas '+' e '-' para Zoom.
+
+Comando para compilar e executar:
+javac TestAnimatedViewer.java
+java TestAnimatedViewer
+
 
 -----------------------------------------------------------
 Status das atividades
