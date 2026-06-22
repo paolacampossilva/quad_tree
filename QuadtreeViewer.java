@@ -193,7 +193,7 @@ public class QuadtreeViewer<P extends Point2> extends JFrame
     public void paint(Graphics g)
     {
       Rectangle r = getBounds();
-      // Cálculo elegante do professor para manter a câmara centrada
+      
       scale = (float)Math.min(r.getWidth() / size.x, r.getHeight() / size.y);
       scale *= zoomFactor;
       Point2 c = (new Point2(center)).mul(scale);
