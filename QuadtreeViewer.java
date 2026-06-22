@@ -6,8 +6,10 @@ import lpoo.geom.*;
 
 /**
  *
+ * @author João Pedro Huppes Arenales
  * @author Paola Campos da Silva 
- * @author Paulo Pagliosa (base/matemática de visualização)
+ * 
+ * @author Paulo Pagliosa (base)
  */
 public class QuadtreeViewer<P extends Point2> extends JFrame
 {

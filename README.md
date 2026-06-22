@@ -18,7 +18,7 @@ Vídeo: [LINK DO VÍDEO]
 
 Certifique-se de ter o Java instalado (JDK). Abra o terminal ou prompt de comando na pasta raiz do projeto (onde estão os arquivos .java principais) e compile todos os arquivos com o comando:
 
-```javac lpoo/geom/*.java *.java```
+```javac -d out $(find . -name "*.java")```
 
 ---
 
@@ -33,7 +33,7 @@ Arquivo: `Main.java`
 Descrição: Executável principal (Requisitos A1 a A4). Abre um menu interativo no terminal, permitindo a geração de pontos ou partículas coloridas e a execução manual das buscas (Raio e KNN), exibindo os resultados ordenados por distância.
 
 Comando para executar:
-```java Main```
+```java -cp out Main```
 
 
 #### B) Visualizador Gráfico Estático (Bônus A5)
@@ -48,10 +48,10 @@ Interações:
 - Teclas '+' e '-' para Zoom.
 
 Comando para executar:
-```java TestViewer```
+```java -cp out TestViewer```
 
 
-#### C) Visualizador Gráfico Animado (Bônus Avançado)
+#### C) Visualizador Gráfico Animado (Bônus A5+)
 
 Arquivo: `TestAnimatedViewer.java`
 
@@ -63,7 +63,7 @@ Interações:
 - Teclas '+' e '-' para Zoom.
 
 Comando para executar:
-```java TestAnimatedViewer```
+```java -cp out TestAnimatedViewer```
 
 ---
 
@@ -126,6 +126,6 @@ Vídeo gravado com os autores explicando as definições efetuadas no código-fo
 
 ## Observações gerais
 
-- O algoritmo de poda de `findNeighbors` visita os quadrantes filhos em ordem de proximidade (menor distância mínima à AABB primeiro) e interrompe a descida em um ramo quando o KNN já está cheio e nenhum ponto daquele ramo pode melhorar o resultado.
+- O algoritmo de poda de `findNeighbors` visita os quadrantes filhos em ordem de proximidade (menor distância mínima à AABB primeiro) e interrompe a descida em um ramo quando o KNN já está cheio e nenhum ponto daquele ramo tem potencial de melhorar o resultado.
 - `forEachNeighbor` ignora o próprio ponto de referência (comparação por identidade) ao contar e processar vizinhos.
 - `pointsPerNode` (`nmax`) tem um mínimo de 5 (`minPointsPerNode`), mesmo que o usuário informe um valor menor.

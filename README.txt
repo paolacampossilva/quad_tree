@@ -11,11 +11,15 @@ Autores:
 Vídeo: [LINK DO VÍDEO]
 Repositório no GitHub: https://github.com/paolacampossilva/quad_tree
 
+
 -----------------------------------------------------------
 Compilação e Execução
 -----------------------------------------------------------
 
 O projeto possui 3 executáveis distintos, desenhados para testar diferentes requisitos do trabalho.
+
+Comando para compilar todos os arquivos:
+javac -d out $(find . -name "*.java")
 
 1. Menu Principal e Testes de Terminal
 
@@ -23,9 +27,8 @@ Arquivo: Main.java
 
 Descrição: Executável principal (Requisitos A1 a A4). Abre um menu interativo no terminal, permitindo a geração de pontos ou partículas coloridas e a execução manual das buscas (Raio e KNN), exibindo os resultados ordenados por distância.
 
-Comando para compilar e executar:
-javac Main.java
-java Main
+Comando para executar:
+java -cp out Main
 
 2. Visualizador Gráfico Estático (Bônus A5)
 
@@ -38,11 +41,10 @@ Interações:
 - O ponto mais próximo do clique fica AZUL, os vizinhos VERMELHOS, e um círculo tracejado mostra a fronteira da busca.
 - Teclas '+' e '-' para Zoom.
 
-Comando para compilar e executar:
-javac TestViewer.java
-java TestViewer
+Comando para executar:
+java -cp out TestViewer
 
-3. Visualizador Gráfico Animado (Bônus Avançado)
+3. Visualizador Gráfico Animado (Bônus A5+)
 
 Arquivo: TestAnimatedViewer.java
 
@@ -53,9 +55,8 @@ Interações:
 - Clique com o mouse (apenas com a animação pausada): Executa a busca KNN interativa.
 - Teclas '+' e '-' para Zoom.
 
-Comando para compilar e executar:
-javac TestAnimatedViewer.java
-java TestAnimatedViewer
+Comando para executar:
+java -cp out TestAnimatedViewer
 
 
 -----------------------------------------------------------
@@ -114,6 +115,7 @@ A6 - Vídeo
     e execução do programa, incluindo os testes de KNN e busca por
     raio para pontos e particulas, com e sem filtro de cor.
 
+
 -----------------------------------------------------------
 Observações gerais
 -----------------------------------------------------------
@@ -121,7 +123,7 @@ Observações gerais
 - O algoritmo de poda de findNeighbors visita os quadrantes filhos
   em ordem de proximidade (menor distância mínima a AABB primeiro)
   e interrompe a descida em um ramo quando o KNN já está cheio e
-  nenhum ponto daquele ramo pode melhorar o resultado.
+  nenhum ponto daquele ramo tem potencial de melhorar o resultado.
 - forEachNeighbor ignora o próprio ponto de referência (comparação
   por identidade) ao contar e processar vizinhos.
 - pointsPerNode (nmax) tem um mínimo de 5 (minPointsPerNode), mesmo
