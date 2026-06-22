@@ -16,7 +16,7 @@ public class TestAnimatedViewer
     
     System.out.println("   Starting interactive animated test...\n");
 
-    int totalParticles = 400; // 400 partículas a moverem-se
+    int totalParticles = 400; // 400 partículas se movendo
     float boundsSize = 100f;
     ColorParticle2[] particles = new ColorParticle2[totalParticles];
     Random rand = new Random();
@@ -79,9 +79,8 @@ public class TestAnimatedViewer
     System.out.println("   >> Screen was opened successfully! Interact with the window.\n");
   }
 
-  /**
-   * Faz a partícula inverter a velocidade se bater nas paredes
-   */
+
+  //Faz a partícula inverter a velocidade se bater nas paredes
   private static void collide(Point2 p1, Point2 p2, Particle2 p)
   {
     if (p.x <= p1.x + EPSILON) {

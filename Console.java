@@ -21,10 +21,6 @@ public class Console
     in = new BufferedReader(keyboard);
     out = System.out;
   }
-
-  // ---------------------------------------------------------------
-  // Funções Estilização do Menu - Adicionadas
-  // ---------------------------------------------------------------
   
   public static void printHeader(String title) {
     out.println("\n==================================================");
@@ -44,19 +40,13 @@ public class Console
     out.println("  [Info] " + message);
   }
 
-  // ---------------------------------------------------------------
-  // Métodos Originais Modificados
-  // ---------------------------------------------------------------
-
   private static void prompt(String message)
   {
-    // Adiciona uma formatação mais limpa antes de ler o dado
     out.print("   > " + message + ": ");
   }
 
   public static void error(String message)
   {
-    // Destaca o erro visualmente
     out.println("\n   [!] Error: " + message + ". Try again.");
   }
 

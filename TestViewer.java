@@ -29,7 +29,7 @@ public class TestViewer
 
     Console.info("Building Quadtree...");
     
-    // nmax = 5 e lmax = 6 (Adicionei o lmax para ficar compativel com a sua Main)
+    // nmax = 5 e lmax = 6 
     Quadtree<Point2> tree = new Quadtree<>(points, 5, 6); 
 
     Console.info("Quadtree built successfully!\n");

@@ -9,5 +9,4 @@ import java.util.*;
 public interface PointUpdater<P extends Point2> 
 {
   boolean update(P[] points, float dt);
-
 } // PointUpdater

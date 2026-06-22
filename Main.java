@@ -9,10 +9,7 @@ import lpoo.geom.*;
  */
 public class Main
 {
-
-  // ---------------------------------------------------------------
   // Leitura / geracao de pontos
-  // ---------------------------------------------------------------
 
   static int toInteger(String s)
   {
@@ -24,9 +21,6 @@ public class Main
     return Float.parseFloat(s);
   }
 
-  /**
-   * Le pontos de um arquivo texto no formato usado por points.txt
-   */
   static Point2[] readPointsFromFile(String filename)
     throws IOException
   {
@@ -52,9 +46,6 @@ public class Main
     }
   }
 
-  /**
-   * Gera n pontos aleatorios.
-   */
   static Point2[] randomPoints(Point2 domain, int n)
   {
     Random rng = new Random();
@@ -85,9 +76,6 @@ public class Main
     return String.format("RGB(%d,%d,%d)", rgb[0], rgb[1], rgb[2]);
   }
 
-  /**
-   * Gera n particulas aleatorias.
-   */
   static ColorParticle2[] randomParticles(Point2 domain, int n)
   {
     Random rng = new Random();
@@ -104,18 +92,14 @@ public class Main
     return particles;
   }
 
-  // ---------------------------------------------------------------
   // Filtro de cor (lambda)
-  // ---------------------------------------------------------------
 
   static PointFunc<ColorParticle2> sameColorFilter(int r, int g, int b)
   {
     return p -> p.r == r && p.g == g && p.b == b;
   }
 
-  // ---------------------------------------------------------------
   // Métodos de teste (A4)
-  // ---------------------------------------------------------------
 
   static <P extends Point2> void testKNNSearch(
     P[] points, Quadtree<P> qt, int index, int k, PointFunc<P> filter)
@@ -126,13 +110,10 @@ public class Main
     System.out.println("   Reference point (Index " + index + "): " + reference);
     System.out.println("   K: " + k + "\n");
 
-    // 1. Executa a busca que preenche o seu Max-Heap interno
     KNN<P> knn = qt.findNeighbors(reference, k, filter);
 
-    // 2. OBRIGATÓRIO: Chamar o método que você criou para ordenar
     List<KNN.Entry<P>> sortedResults = knn.toSortedList();
 
-    // 3. Imprime a lista já perfeitamente ordenada (Menor -> Maior distância)
     for (KNN.Entry<P> entry : sortedResults) 
     {
       System.out.printf("      >> %s | Distance: %.4f%n", 
@@ -159,7 +140,7 @@ public class Main
         this.point = point;
         this.distance = distance;
       }
-    }
+    } // NeighborResult
     
     // Lista para coletar todos os pontos encontrados no raio
     List<NeighborResult> foundNeighbors = new ArrayList<>();
@@ -174,7 +155,6 @@ public class Main
     // Ordena a lista da menor para a maior distância
     foundNeighbors.sort((a, b) -> Float.compare(a.distance, b.distance));
 
-    // Agora sim, imprime os resultados já ordenados
     for (NeighborResult res : foundNeighbors) {
       System.out.printf("      >> %s | Distance: %.4f%n", res.point.toString(), res.distance);
     }
@@ -182,9 +162,7 @@ public class Main
     System.out.println("\n   >> Total points found within radius: " + count);
   }
 
-  // ---------------------------------------------------------------
   // Menu principal
-  // ---------------------------------------------------------------
 
   public static void main(String[] args)
   {
@@ -210,7 +188,7 @@ public class Main
     }
   }
 
-  // -------- fluxo para Point2 --------
+  // fluxo para Point2
 
   static void runForPoints() throws IOException
   {
@@ -261,7 +239,7 @@ public class Main
     }
   }
 
-  // -------- fluxo para ColorParticle2 --------
+  // fluxo para ColorParticle2
 
   static void runForParticles()
   {
@@ -324,7 +302,7 @@ public class Main
     return sameColorFilter(c[0], c[1], c[2]);
   }
 
-  // -------- menu de buscas (KNN / raio) --------
+  // menu de buscas (KNN / raio)
 
   static <P extends Point2> void searchMenu(P[] points, Quadtree<P> qtree, PointFunc<P> filter)
   {

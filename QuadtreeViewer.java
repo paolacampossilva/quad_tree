@@ -70,7 +70,7 @@ public class QuadtreeViewer<P extends Point2> extends JFrame
     private final Point2 size, center, offset = new Point2();
     private float scale, zoomFactor = 1;
 
-    // Estado da busca interativa (Bónus A5)
+    // Estado da busca interativa 
     private static final int SEARCH_K = 8;
     private P searchReference;
     private java.util.List<KNN.Entry<P>> searchResult;
@@ -148,7 +148,7 @@ public class QuadtreeViewer<P extends Point2> extends JFrame
       P nearest = null;
       float bestDist = Float.MAX_VALUE;
 
-      // Procura o ponto mais perto do clique do rato
+      // Procura o ponto mais perto do clique do mouse
       for (Quadtree.NodeData<P> node : qt)
         for (P p : node)
         {
@@ -218,7 +218,7 @@ public class QuadtreeViewer<P extends Point2> extends JFrame
           for (P p : node) drawPoint(g2, p, Color.BLACK);
       }
 
-      // 3. Destaca o resultado da busca interativa (Bónus)
+      // 3. Destaca o resultado da busca interativa 
       if (searchResult != null && searchReference != null)
       {
         for (KNN.Entry<P> entry : searchResult)
@@ -242,7 +242,7 @@ public class QuadtreeViewer<P extends Point2> extends JFrame
 
     private void drawPoint(Graphics2D g2, P p, Color defaultColor)
     {
-      // Se for ColorParticle2, tenta usar a cor real da partícula para um visual incrível!
+      // Se for ColorParticle2, tenta usar a cor real da partícula 
       if (p instanceof ColorParticle2) {
         ColorParticle2 cp = (ColorParticle2) p;
         g2.setColor(new Color(cp.r, cp.g, cp.b));

@@ -8,6 +8,7 @@ import java.util.ArrayList;
 /**
  *
  * @author João Pedro Huppes Arenales
+ * @author Paola Campos da Silva
  */
 public class KNN<P extends Point2> 
   implements Iterable<KNN.Entry<P>>
@@ -76,12 +77,11 @@ public class KNN<P extends Point2>
     PriorityQueue<Entry<P>> tempHeap = new PriorityQueue<>(this.maxheap);
     ArrayList<Entry<P>> list = new ArrayList<>(this.size());
 
-    // Adiciona normalmente no fim 
-    // A lista vai ficar em ordem DECRESCENTE (Maior -> Menor)
+    // a lista vai ficar em ordem DECRESCENTE (Maior -> Menor)
     while(!tempHeap.isEmpty())
       list.add(tempHeap.poll());
 
-    // Inverte a lista inteira de uma só vez para virar CRESCENTE (Menor -> Maior)
+    // inverte a lista inteira de uma só vez para virar CRESCENTE (Menor -> Maior)
     java.util.Collections.reverse(list);
 
     return list;
@@ -96,4 +96,4 @@ public class KNN<P extends Point2>
     else
       return maxheap.peek().distance;
   }
-}
+} // KNN
