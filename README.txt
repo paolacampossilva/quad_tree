@@ -8,7 +8,8 @@ Autores:
 - Paola Campos da Silva
 - Valentina Campos Soares
 
-Vídeo: [LINK DO VÍDEO]
+Vídeo: https://drive.google.com/drive/folders/1AIx3-WPU2XVyNhQ1C9-W8Otkaeo9o0zU?usp=drive_link
+
 Repositório no GitHub: https://github.com/paolacampossilva/quad_tree
 
 
